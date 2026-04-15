@@ -1,7 +1,7 @@
 # QLoRA fine-tuning of Qwen2.5-7B for customer-support intent classification
 
 End-to-end LoRA fine-tuning walkthrough — from raw data, through 4-bit (QLoRA)
-training on a single consumer GPU, to a merged fp16 model you can deploy.
+training on a single consumer GPU, to a merged bf16 model you can deploy.
 
 **Base model:** `Qwen/Qwen2.5-7B-Instruct`
 **Task:** classify a customer-support message into one of 27 intent labels
@@ -14,8 +14,11 @@ training on a single consumer GPU, to a merged fp16 model you can deploy.
 
 | metric | value |
 |---|---|
-| validation accuracy (500 samples) | **100.00 %** |
+| validation accuracy (500 clean samples) | **100.00 %** |
 | validation macro F1 | **100.00 %** |
+| accuracy on hand-crafted noisy test set (15 cases) | **80.0 %** |
+| single-query inference latency (p50 / p90) | **74 / 117 ms** |
+| batched throughput (batch 32) | **118 classifications / sec** |
 | final training loss | 0.3514 |
 | training time (1 epoch, 1,512 steps) | **34.9 min** |
 | trainable parameters | 40.4 M / 7.66 B (0.53 %) |
@@ -61,6 +64,9 @@ This number is unusually clean for two reasons specific to the benchmark:
 On a noisier in-house dataset with the same method I'd expect 90-95 % macro F1,
 not 100 %. The point of this repo is the *pipeline* (QLoRA + ChatML + eval + merge),
 which transfers directly; the numerical result reflects how clean the benchmark is.
+The [stress test below](#stress-test-on-hand-crafted-noisy-input) backs this up:
+on 15 hand-written adversarial messages the model drops to **80 %** — and looking at
+*how* it fails is more interesting than the score.
 
 ### Loss curves
 
@@ -72,6 +78,78 @@ which transfers directly; the numerical result reflects how clean the benchmark 
 
 Full per-class precision/recall/F1 plus the 10-sample base-vs-fine-tuned comparison table are in
 [`outputs/eval_report.json`](outputs/eval_report.json).
+
+---
+
+## Stress test on hand-crafted noisy input
+
+Bitext messages are procedurally generated and fairly clean. To see how the model
+behaves on realistic noise, I hand-wrote 15 messages spanning six categories of
+difficulty the benchmark doesn't cover: typos / abbreviations, slang, frustrated
+tone, negation, long polite phrasing, and mixed intents.
+
+**Result: 12 / 15 = 80 %**
+
+| noise category | correct | representative case |
+|---|---|---|
+| slang | 3 / 3 | `yo how do i speak to a real person` -> `contact_human_agent` |
+| frustrated | 2 / 2 | `this is ridiculous just give me my damn refund` -> `get_refund` |
+| negation | 2 / 2 | `I DON'T want to receive your newsletter anymore` -> `newsletter_subscription` |
+| typo / abbrev | 3 / 4 | `can u chck my invc #8823` -> `check_invoice` |
+| long / polite | 1 / 2 | `Hi there! I was wondering if perhaps you could help me…` -> `place_order` |
+| mixed-intent | 1 / 2 | `need to update my shipping address and check when my order arrives` -> `change_shipping_address` |
+
+### Failure modes — the three misses
+
+The misses are more informative than the score:
+
+| message | gold | prediction | what happened |
+|---|---|---|---|
+| `whers my pkg at?` | `track_order` | `track_package` | **Label hallucination** — the model invented a plausible-sounding label that isn't in the 27-label set. |
+| `i cant log in anymore, keeps saying wrong password` | `recover_password` | `enter_password` | Same mode — made up a label. |
+| `i wanna leave some feedback but also maybe cancel my subscription` | `review` | `newsletter_subscription` | **Real ambiguity.** Both intents appear in the message; the model picked the secondary one. A human would also hesitate. |
+
+Two of three failures are **label hallucination**, not misunderstanding. That's
+a production risk worth naming: a deployed version of this classifier would need
+one of —
+
+- **Constrained decoding** that restricts outputs to the 27 known labels (e.g. Outlines, JSON-schema-guided decoding, or a manual logits mask),
+- A post-processing step mapping unknown generations to `__other__` (this repo's `match_label()` already does this at eval time but inference.py does not), or
+- More training coverage of the exact label vocabulary — longer training or more diverse paraphrases per class.
+
+Full cases and raw predictions in [`outputs/noisy_eval.json`](outputs/noisy_eval.json).
+Reproduce with `python noisy_eval.py`.
+
+---
+
+## Inference cost & latency
+
+Measured on the same RTX 4090 via `benchmark.py` (50 warmup + 50 measured runs
+for latency; 10 batches per size for throughput).
+
+| | |
+|---|---|
+| VRAM (loaded / peak during generation) | 14.2 / 14.5 GB |
+| single-query latency, p50 / p90 / p99 | 74 / 117 / 118 ms |
+| throughput, batch 1 / 4 / 16 / 32 | 12.5 / 35.5 / 86.0 / **118.2** classifications / sec |
+
+### Rough monthly cost: self-hosted vs API
+
+Assuming **10 million classifications / month**, 80 input + 5 output tokens per
+call:
+
+| stack | $ / month |
+|---|---|
+| self-hosted (RTX 4090 amortized over 3 yr + electricity at $0.15 / kWh, running only when needed) | **~$2.56** |
+| GPT-4o-mini API, at public pricing ($0.15 / M input + $0.60 / M output) | ~$150.00 |
+
+Self-hosted wins by **~60×** in this sustained, high-volume regime. The picture
+flips for spiky / low-volume workloads, where the 4090's fixed capital and
+idle-time cost dominate — an API becomes the right choice under ~100k
+classifications / month on these assumptions.
+
+Numbers and all assumptions in [`outputs/benchmark.json`](outputs/benchmark.json).
+Reproduce with `python benchmark.py`.
 
 ---
 
@@ -166,24 +244,32 @@ python train.py
 # 3. Try the merged model
 python inference.py
 # or: python inference.py "I want to cancel my order"
+
+# 4. (optional) Stress-test on hand-crafted noisy input
+python noisy_eval.py
+
+# 5. (optional) Benchmark inference latency, throughput, and monthly cost
+python benchmark.py
 ```
 
-A ~2 minute sanity check on ~300 rows:
+A ~2 minute sanity check of the full training pipeline on ~300 rows:
 
 ```bash
 python smoke_test.py
 ```
 
-### Outputs produced by `train.py`
+### Outputs produced
 
 ```
 outputs/
-├── checkpoint-*/           HF trainer checkpoint (latest only, for resume)
-├── final_adapter/          PEFT adapter + tokenizer (~40 MB)
-├── loss_curve.png          training / eval loss vs. step
-├── confusion_matrix.png    27×27 heatmap over the val set
-└── eval_report.json        accuracy, macro F1, classification report, base-vs-FT examples
-merged_model/               bf16 full model (~15 GB) ready for deployment
+├── checkpoint-*/           HF trainer checkpoint (latest only, for resume)      [train.py]
+├── final_adapter/          PEFT adapter + tokenizer, ~40 MB                     [train.py]
+├── loss_curve.png          training / eval loss vs. step                        [train.py]
+├── confusion_matrix.png    27×27 heatmap over the val set                       [train.py]
+├── eval_report.json        accuracy, macro F1, classification report, base-vs-FT examples   [train.py]
+├── noisy_eval.json         per-category accuracy + failure modes on hand-crafted noisy cases [noisy_eval.py]
+└── benchmark.json          VRAM, latency percentiles, throughput, cost model    [benchmark.py]
+merged_model/               bf16 full model (~15 GB) ready for deployment        [train.py]
 ```
 
 ---
@@ -193,7 +279,10 @@ merged_model/               bf16 full model (~15 GB) ready for deployment
 ```
 train.py           # full training pipeline (config -> data -> train -> eval -> merge)
 inference.py       # load the merged model and classify sample messages
-smoke_test.py      # same pipeline on ~300 rows for a fast sanity check
-requirements.txt
+noisy_eval.py      # 15 hand-crafted noisy cases; reports per-category accuracy + failure modes
+benchmark.py       # single-query latency, batched throughput, VRAM, API cost comparison
+smoke_test.py      # same training pipeline on ~300 rows for a fast sanity check
+requirements.txt   # pinned to the exact versions used for the reported results
+LICENSE            # MIT
 README.md
 ```

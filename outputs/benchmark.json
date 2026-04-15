@@ -1,0 +1,36 @@
+{
+  "vram_load_gb": 14.19,
+  "vram_peak_gb": 14.51,
+  "latency_ms": {
+    "mean": 81.4,
+    "p50": 73.89,
+    "p90": 116.54,
+    "p99": 117.84,
+    "min": 50.44,
+    "max": 117.84
+  },
+  "throughput_per_bs": {
+    "1": 12.5,
+    "4": 35.5,
+    "16": 86.0,
+    "32": 118.2
+  },
+  "best_throughput_per_sec": 118.2,
+  "cost_comparison": {
+    "monthly_volume": 10000000,
+    "input_tokens_call": 80,
+    "output_tokens_call": 5,
+    "self_hosted_usd_per_month": 2.56,
+    "self_hosted_breakdown": {
+      "gpu_amortized_usd_per_hour": 0.0685,
+      "electricity_usd_per_hour": 0.0405,
+      "gpu_hours_needed_per_month": 23.5
+    },
+    "api_usd_per_month": 150.0,
+    "api_pricing_used": {
+      "input_usd_per_mtok": 0.15,
+      "output_usd_per_mtok": 0.6
+    },
+    "cost_ratio_api_over_self_hosted": 58.6
+  }
+}

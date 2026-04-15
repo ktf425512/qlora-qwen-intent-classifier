@@ -1,0 +1,146 @@
+{
+  "overall": {
+    "correct": 12,
+    "total": 15,
+    "accuracy": 0.8
+  },
+  "by_category": {
+    "typo/abbrev": {
+      "correct": 3,
+      "total": 4,
+      "accuracy": 0.75
+    },
+    "slang": {
+      "correct": 3,
+      "total": 3,
+      "accuracy": 1.0
+    },
+    "frustrated": {
+      "correct": 2,
+      "total": 2,
+      "accuracy": 1.0
+    },
+    "negation": {
+      "correct": 2,
+      "total": 2,
+      "accuracy": 1.0
+    },
+    "long/polite": {
+      "correct": 1,
+      "total": 2,
+      "accuracy": 0.5
+    },
+    "mixed-intent": {
+      "correct": 1,
+      "total": 2,
+      "accuracy": 0.5
+    }
+  },
+  "cases": [
+    {
+      "message": "whers my pkg at?",
+      "gold": "track_order",
+      "pred": "track_package",
+      "category": "typo/abbrev",
+      "correct": false
+    },
+    {
+      "message": "can u chck my invc #8823",
+      "gold": "check_invoice",
+      "pred": "check_invoice",
+      "category": "typo/abbrev",
+      "correct": true
+    },
+    {
+      "message": "my card got declined wen i tried to pay for smth",
+      "gold": "payment_issue",
+      "pred": "payment_issue",
+      "category": "typo/abbrev",
+      "correct": true
+    },
+    {
+      "message": "how do i sign up for a new acc",
+      "gold": "create_account",
+      "pred": "create_account",
+      "category": "typo/abbrev",
+      "correct": true
+    },
+    {
+      "message": "yo how do i speak to a real person",
+      "gold": "contact_human_agent",
+      "pred": "contact_human_agent",
+      "category": "slang",
+      "correct": true
+    },
+    {
+      "message": "when will my order arrive bro",
+      "gold": "delivery_period",
+      "pred": "delivery_period",
+      "category": "slang",
+      "correct": true
+    },
+    {
+      "message": "what's ur return policy for used stuff",
+      "gold": "check_refund_policy",
+      "pred": "check_refund_policy",
+      "category": "slang",
+      "correct": true
+    },
+    {
+      "message": "this is ridiculous just give me my damn refund",
+      "gold": "get_refund",
+      "pred": "get_refund",
+      "category": "frustrated",
+      "correct": true
+    },
+    {
+      "message": "need refund ASAP pls",
+      "gold": "get_refund",
+      "pred": "get_refund",
+      "category": "frustrated",
+      "correct": true
+    },
+    {
+      "message": "I DON'T want to receive your newsletter anymore",
+      "gold": "newsletter_subscription",
+      "pred": "newsletter_subscription",
+      "category": "negation",
+      "correct": true
+    },
+    {
+      "message": "account deletion procedure?",
+      "gold": "delete_account",
+      "pred": "delete_account",
+      "category": "negation",
+      "correct": true
+    },
+    {
+      "message": "Hi there! I was wondering if perhaps you could help me figure out how to go about placing a new order - thanks!",
+      "gold": "place_order",
+      "pred": "place_order",
+      "category": "long/polite",
+      "correct": true
+    },
+    {
+      "message": "i cant log in anymore, keeps saying wrong password",
+      "gold": "recover_password",
+      "pred": "enter_password",
+      "category": "long/polite",
+      "correct": false
+    },
+    {
+      "message": "need to update my shipping address and check when my order arrives",
+      "gold": "change_shipping_address",
+      "pred": "change_shipping_address",
+      "category": "mixed-intent",
+      "correct": true
+    },
+    {
+      "message": "i wanna leave some feedback but also maybe cancel my subscription",
+      "gold": "review",
+      "pred": "review\nnewsletter_subscription",
+      "category": "mixed-intent",
+      "correct": false
+    }
+  ]
+}
