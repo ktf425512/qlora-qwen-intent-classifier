@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Training artifacts - checkpoints and optimizer state are large, not portable
+outputs/checkpoint-*/
+outputs/final_adapter/
+outputs/*.log
+outputs/README.md
+
+# Merged deployable model - too large for GitHub (~15 GB)
+merged_model/
+
+# Unsloth auto-generated cache (not used by this repo, but may appear)
+unsloth_compiled_cache/
+
+# Local dev helpers (not for distribution)
+CLAUDE.md
+.claude/
+_fill_readme.py
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

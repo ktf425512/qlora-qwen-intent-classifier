@@ -1,0 +1,280 @@
+{
+  "n_eval": 500,
+  "accuracy": 1.0,
+  "macro_f1": 1.0,
+  "classification_report": {
+    "cancel_order": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 16.0
+    },
+    "change_order": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 23.0
+    },
+    "change_shipping_address": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 19.0
+    },
+    "check_cancellation_fee": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 13.0
+    },
+    "check_invoice": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 26.0
+    },
+    "check_payment_methods": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 18.0
+    },
+    "check_refund_policy": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 17.0
+    },
+    "complaint": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 19.0
+    },
+    "contact_customer_service": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 19.0
+    },
+    "contact_human_agent": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 24.0
+    },
+    "create_account": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 23.0
+    },
+    "delete_account": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20.0
+    },
+    "delivery_options": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 17.0
+    },
+    "delivery_period": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 15.0
+    },
+    "edit_account": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 18.0
+    },
+    "get_invoice": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20.0
+    },
+    "get_refund": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 14.0
+    },
+    "newsletter_subscription": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 19.0
+    },
+    "payment_issue": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 17.0
+    },
+    "place_order": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 16.0
+    },
+    "recover_password": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 21.0
+    },
+    "registration_problems": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 16.0
+    },
+    "review": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 14.0
+    },
+    "set_up_shipping_address": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20.0
+    },
+    "switch_account": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20.0
+    },
+    "track_order": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 17.0
+    },
+    "track_refund": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 19.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 500.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 500.0
+    }
+  },
+  "base_vs_finetuned": {
+    "n": 10,
+    "base_accuracy": 0.0,
+    "finetuned_accuracy": 1.0,
+    "examples": [
+      {
+        "message": "informing of problem with payment",
+        "gold": "payment_issue",
+        "base_pred": "__other__",
+        "base_pred_raw": "PaymentProblem",
+        "finetuned_pred": "payment_issue",
+        "finetuned_pred_raw": "payment_issue"
+      },
+      {
+        "message": "i dont know what i need to do to locate invoice #85632",
+        "gold": "check_invoice",
+        "base_pred": "__other__",
+        "base_pred_raw": "LocateInvoice",
+        "finetuned_pred": "check_invoice",
+        "finetuned_pred_raw": "check_invoice"
+      },
+      {
+        "message": "i need help to subvmit some feedback about ur products",
+        "gold": "review",
+        "base_pred": "__other__",
+        "base_pred_raw": "Feedback Submission",
+        "finetuned_pred": "review",
+        "finetuned_pred_raw": "review"
+      },
+      {
+        "message": "wanna know about cancel the subscription to ur newsletter",
+        "gold": "newsletter_subscription",
+        "base_pred": "__other__",
+        "base_pred_raw": "CancelSubscription",
+        "finetuned_pred": "newsletter_subscription",
+        "finetuned_pred_raw": "newsletter_subscription"
+      },
+      {
+        "message": "i want help checking how soon can i expect my delivery",
+        "gold": "delivery_period",
+        "base_pred": "__other__",
+        "base_pred_raw": "ShippingStatus",
+        "finetuned_pred": "delivery_period",
+        "finetuned_pred_raw": "delivery_period"
+      },
+      {
+        "message": "problem with gold account terminations",
+        "gold": "delete_account",
+        "base_pred": "__other__",
+        "base_pred_raw": "AccountIssues",
+        "finetuned_pred": "delete_account",
+        "finetuned_pred_raw": "delete_account"
+      },
+      {
+        "message": "I want help to shop several products",
+        "gold": "place_order",
+        "base_pred": "__other__",
+        "base_pred_raw": "Shopping Assistance",
+        "finetuned_pred": "place_order",
+        "finetuned_pred_raw": "place_order"
+      },
+      {
+        "message": "I paid {{Currency Symbol}}{{Refund Amount}} for a purchase, help me obtaining my money back",
+        "gold": "get_refund",
+        "base_pred": "__other__",
+        "base_pred_raw": "refund_request",
+        "finetuned_pred": "get_refund",
+        "finetuned_pred_raw": "get_refund"
+      },
+      {
+        "message": "transferring to operator",
+        "gold": "contact_human_agent",
+        "base_pred": "__other__",
+        "base_pred_raw": "transfer_request",
+        "finetuned_pred": "contact_human_agent",
+        "finetuned_pred_raw": "contact_human_agent"
+      },
+      {
+        "message": "want assistance notifying of issues with a registration",
+        "gold": "registration_problems",
+        "base_pred": "__other__",
+        "base_pred_raw": "registration-issue",
+        "finetuned_pred": "registration_problems",
+        "finetuned_pred_raw": "registration_problems"
+      }
+    ]
+  },
+  "training": {
+    "final_train_loss": 0.35138428510812225,
+    "global_steps": 1512,
+    "train_examples": 24184,
+    "val_examples": 2688,
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "lora_rank": 16,
+    "epochs": 1,
+    "effective_batch": 16,
+    "learning_rate": 0.0002
+  }
+}
