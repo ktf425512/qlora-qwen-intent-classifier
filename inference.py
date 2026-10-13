@@ -1,6 +1,10 @@
 """
 Load the merged fine-tuned model and classify a few customer-support messages.
 
+Every generation is passed through `labels.match_label()`, the same rule
+`train.py` uses at evaluation time, so anything outside the 27-label vocabulary
+is returned as "__other__" instead of an invented label.
+
 Prerequisite: run `python train.py` first so `./merged_model/` exists.
 """
 from __future__ import annotations
@@ -10,6 +14,8 @@ from pathlib import Path
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from labels import OTHER, match_label
 
 MODEL_DIR = Path("./merged_model")
 MAX_NEW_TOKENS = 16
@@ -52,6 +58,12 @@ def classify(model, tokenizer, message: str) -> str:
     return tokenizer.decode(gen, skip_special_tokens=True).strip()
 
 
+def classify_label(model, tokenizer, message: str) -> tuple[str, str]:
+    """Return (label, raw_generation); label is a valid intent or '__other__'."""
+    raw = classify(model, tokenizer, message)
+    return match_label(raw), raw
+
+
 def main():
     if not MODEL_DIR.exists():
         sys.exit(f"Merged model not found at {MODEL_DIR}. Run `python train.py` first.")
@@ -75,8 +87,9 @@ def main():
     print("-" * 70)
     messages = SAMPLE_MESSAGES if len(sys.argv) <= 1 else sys.argv[1:]
     for msg in messages:
-        pred = classify(model, tokenizer, msg)
-        print(f"{pred:<32}  {msg}")
+        label, raw = classify_label(model, tokenizer, msg)
+        note = f"  (raw generation: {raw!r})" if label == OTHER else ""
+        print(f"{label:<32}  {msg}{note}")
     print("-" * 70)
 
 

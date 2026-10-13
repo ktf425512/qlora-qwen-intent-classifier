@@ -110,11 +110,14 @@ The misses are more informative than the score:
 | `i wanna leave some feedback but also maybe cancel my subscription` | `review` | `newsletter_subscription` | **Real ambiguity.** Both intents appear in the message; the model picked the secondary one. A human would also hesitate. |
 
 Two of three failures are **label hallucination**, not misunderstanding. That's
-a production risk worth naming: a deployed version of this classifier would need
-one of —
+a production risk worth naming, and this repo closes the cheap half of it:
+`inference.py` passes every generation through `labels.match_label()`, the same
+rule `train.py` applies at evaluation time, so anything outside the 27-label
+vocabulary comes back as `__other__` instead of a plausible-looking invented
+label (`tests/test_match_label.py` pins that behaviour). What it does **not** do,
+and what a deployed version would still want:
 
-- **Constrained decoding** that restricts outputs to the 27 known labels (e.g. Outlines, JSON-schema-guided decoding, or a manual logits mask),
-- A post-processing step mapping unknown generations to `__other__` (this repo's `match_label()` already does this at eval time but inference.py does not), or
+- **Constrained decoding** that restricts outputs to the 27 known labels at generation time (e.g. Outlines, JSON-schema-guided decoding, or a manual logits mask), so an out-of-vocabulary string cannot be produced in the first place, or
 - More training coverage of the exact label vocabulary — longer training or more diverse paraphrases per class.
 
 Full cases and raw predictions in [`outputs/noisy_eval.json`](outputs/noisy_eval.json).
@@ -258,6 +261,12 @@ A ~2 minute sanity check of the full training pipeline on ~300 rows:
 python smoke_test.py
 ```
 
+Unit tests for the label post-processing (pure Python, no GPU or model needed):
+
+```bash
+python -m pytest tests -q
+```
+
 ### Outputs produced
 
 ```
@@ -278,7 +287,9 @@ merged_model/               bf16 full model (~15 GB) ready for deployment       
 
 ```
 train.py           # full training pipeline (config -> data -> train -> eval -> merge)
-inference.py       # load the merged model and classify sample messages
+inference.py       # load the merged model and classify sample messages (maps unknown labels to __other__)
+labels.py          # 27-intent vocabulary + match_label(), shared by eval and inference
+tests/             # pytest: label mapping and vocabulary consistency with outputs/eval_report.json
 noisy_eval.py      # 15 hand-crafted noisy cases; reports per-category accuracy + failure modes
 benchmark.py       # single-query latency, batched throughput, VRAM, API cost comparison
 smoke_test.py      # same training pipeline on ~300 rows for a fast sanity check
